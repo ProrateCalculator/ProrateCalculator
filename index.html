@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pro-Rated Cost Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Prorate Calculator for Upgrade Fee</h2>
+
+  <label for="daysInMonth">Total Days in Month:</label>
+  <input type="number" id="daysInMonth" min="1" max="31" value="31">
+
+  <label for="currentDay">Current Day of Month:</label>
+  <input type="number" id="currentDay" min="1" max="31" value="15">
+
+  <label for="oldRate">Old Monthly Rate ($):</label>
+  <input type="number" id="oldRate" min="0" step="0.01" value="60">
+
+  <label for="newRate">New Monthly Rate ($):</label>
+  <input type="number" id="newRate" min="0" step="0.01" value="100">
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    function calculate() {
+      const daysInMonth = parseInt(document.getElementById("daysInMonth").value, 10);
+      const currentDay = parseInt(document.getElementById("currentDay").value, 10);
+      const oldRate = parseFloat(document.getElementById("oldRate").value);
+      const newRate = parseFloat(document.getElementById("newRate").value);
+
+      if (
+        isNaN(daysInMonth) || isNaN(currentDay) || isNaN(oldRate) || isNaN(newRate) ||
+        daysInMonth < 1 || currentDay < 1 || currentDay > daysInMonth
+      ) {
+        alert("Please enter valid values.");
+        return;
+      }
+
+      const remainingDays = daysInMonth - currentDay + 1;
+      const oldDaily = oldRate / daysInMonth;
+      const newDaily = newRate / daysInMonth;
+      const differencePerDay = newDaily - oldDaily;
+      const totalDifference = (differencePerDay * remainingDays).toFixed(2);
+
+      const label = differencePerDay >= 0 ? "Additional Cost" : "Savings";
+
+      document.getElementById("result").innerHTML =
+        `${label}: $${Math.abs(totalDifference)}`;
+    }
+  </script>
+
+</body>
+</html>
