@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prorate Calculator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    max-width: 500px;
+    margin: 15px auto;
+  }
+
+  label, input {
+    display: block;
+    margin: 6px 0;
+    font-size: 13px;
+  }
+
+  input[type="number"],
+  input[type="date"] {
+    width: 100%;
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  button {
+    padding: 8px 16px;
+    margin-top: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  .result {
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    font-size: 14px;
+  }
+</style></head>
+<body>
+
+  <h2>Prorate Calculator</h2>
+
+  <label>Start Date of Billing Period:
+    <input type="date" id="startDate">
+  </label>
+
+  <label>Rate Change Date:
+    <input type="date" id="changeDate">
+  </label>
+
+  <label>End Date of Billing Period:
+    <input type="date" id="endDate">
+  </label>
+
+  <label>Original Monthly Rate ($):
+    <input type="number" id="originalRate" step="0.01">
+  </label>
+
+  <label>New Monthly Rate ($):
+    <input type="number" id="newRate" step="0.01">
+  </label>
+
+  <button onclick="calculateProrate()">Calculate</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    // Set default dates
+    window.onload = function() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth(); // 0-based
+
+      const startDate = new Date(year, month, 1);
+      const endDate = new Date(year, month + 1, 0); // last day of the month
+
+      document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+      document.getElementById('changeDate').value = today.toISOString().split('T')[0];
+      document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+    };
+
+    function calculateProrate() {
+      const startDate = new Date(document.getElementById('startDate').value);
+      const changeDate = new Date(document.getElementById('changeDate').value);
+      const endDate = new Date(document.getElementById('endDate').value);
+      const originalRate = parseFloat(document.getElementById('originalRate').value);
+      const newRate = parseFloat(document.getElementById('newRate').value);
+
+      if (isNaN(originalRate) || isNaN(newRate) || !startDate || !changeDate || !endDate) {
+        document.getElementById('result').innerHTML = "<strong>Please fill in all fields correctly.</strong>";
+        return;
+      }
+
+      const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+      const daysBeforeChange = (changeDate - startDate) / (1000 * 60 * 60 * 24);
+      const daysAfterChange = totalDays - daysBeforeChange;
+
+      if (totalDays <= 0 || daysBeforeChange < 0 || daysAfterChange < 0) {
+        document.getElementById('result').innerHTML = "<strong>Please check that the dates are in logical order.</strong>";
+        return;
+      }
+
+      const dailyOriginal = originalRate / totalDays;
+      const dailyNew = newRate / totalDays;
+
+      const proratedOriginal = dailyOriginal * daysBeforeChange;
+      const proratedNew = dailyNew * daysAfterChange;
+      const totalProrated = proratedOriginal + proratedNew;
+
+      const difference = totalProrated - originalRate;
+
+      document.getElementById('result').innerHTML = `
+        <strong>Upgrade Fee:</strong> $${difference.toFixed(2)}
+      `;
+    }
+  </script>
+
+</body>
+</html>
