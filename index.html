@@ -230,8 +230,10 @@ function calculateProrate() {
     return;
   }
 
-  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-  const daysBeforeChange = (changeDate - startDate) / (1000 * 60 * 60 * 24);
+  // Count calendar days in UTC so every day is a full day, even across DST changes.
+  const calendarDay = date => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000;
+  const totalDays = calendarDay(endDate) - calendarDay(startDate) + 1;
+  const daysBeforeChange = calendarDay(changeDate) - calendarDay(startDate);
   const daysAfterChange = totalDays - daysBeforeChange;
 
   if (totalDays <= 0 || daysBeforeChange < 0 || daysAfterChange < 0) {
